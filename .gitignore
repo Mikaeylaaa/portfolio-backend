@@ -1,0 +1,32 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build output directories
+dist/
+build/
+out/
+
+# Ignore environment-specific files (if using dotenv)
+.env
+.env.local
+.env.*.local
+
+# Ignore TypeScript compiler output
+*.js
+*.js.map
+
+# Ignore development and editor-specific files
+.vscode/
+*.swp
+*.swo
+*.log
+*.DS_Store
+*.bak
+
+# Ignore package lock files
+package-lock.json
+yarn.lock
+
+# Ignore testing and coverage directories
+coverage/
+__tests__/
