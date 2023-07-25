@@ -14,13 +14,16 @@ import {
   getAllBids,
   getAllDeposits,
   getAllItems,
-  getItemsByStatus,
+  getExistingItems,
+  getPublishedtems,
   getUsers,
   pool,
   updateBid,
   updateItemDetails,
   updateItemPriceById,
+  updateItemStateToPublished,
 } from "./db";
+import { BiddingItem } from "./types";
 
 const router = express.Router();
 
@@ -79,18 +82,36 @@ router.get("/login", async (req: Request, res: Response) => {
 // Create item to bid
 router.post("/items", async (req: Request, res: Response) => {
   try {
-    const { itemName, itemPrice, timeWindow, itemStatus } = req.body;
+    const newBiddingItem: BiddingItem = req.body;
+    const { itemName, itemPrice, timeWindowHours, timeWindowMinutes, state } =
+      newBiddingItem;
     const itemId = await createItem(
       itemName,
       itemPrice,
-      timeWindow,
-      itemStatus
+      timeWindowHours,
+      timeWindowMinutes,
+      state
     );
 
     res.status(201).json({ message: "Item added successfully!", itemId });
   } catch (error) {
     console.error("Error in adding items to bid:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Update item state to 'published'
+router.put("/bidding-items/:itemId/publish", async (req: Request, res: Response) => {
+  try {
+    const itemId = Number(req.params.itemId); // Extract the itemId from the URL parameter
+
+    // Update the state of the item to 'published'
+    await updateItemStateToPublished(itemId);
+
+    res.status(200).json({ message: "Item published successfully" });
+  } catch (error) {
+    console.error("Error publishing item:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -111,15 +132,15 @@ router.put("/items/:itemId", async (req: Request, res: Response) => {
 // Route to update item details by id
 router.put("/items/:itemId", async (req: Request, res: Response) => {
   const itemId = parseInt(req.params.itemId);
-  const { itemName, itemPrice, timeWindow, itemStatus } = req.body;
+  const { itemName, itemPrice, timeWindowHours, timeWindowMinutes } = req.body;
 
   try {
     const result = await updateItemDetails(
       itemId,
       itemName,
       itemPrice,
-      timeWindow,
-      itemStatus
+      timeWindowHours,
+      timeWindowMinutes
     );
     res.json({ message: "Item updated successfully." });
   } catch (error) {
@@ -141,16 +162,49 @@ router.delete("/items/:itemId", async (req: Request, res: Response) => {
   }
 });
 
-// Route to get items by item_status
-router.get("/items/:itemStatus", async (req: Request, res: Response) => {
-  const itemStatus = req.params.itemStatus;
+// Route to get published items for bidding
+
+router.get("/published-items", async (req: Request, res: Response) => {
+  try {
+    const items = await getPublishedtems();
+    console.log("Success in fetching published items!");
+
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching 'published' items:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Route to get existing items available for bidding
+router.get("/existing-items", async (req: Request, res: Response) => {
+  const { itemName, itemPrice, timeWindowHours, timeWindowMinutes, state='draft' } = req.query;
+
+  // Check if all the required parameters are provided in the query string
+  if (!itemName || !itemPrice || !timeWindowHours || !timeWindowMinutes || state) {
+    return res
+      .status(400)
+      .json({ error: "Please provide all the required parameters." });
+  }
 
   try {
-    const items = await getItemsByStatus(itemStatus);
-    res.json(items);
+    const rows = await getExistingItems(
+      itemName as string,
+      Number(itemPrice),
+      Number(timeWindowHours),
+      Number(timeWindowMinutes)
+    );
+
+    if (!rows) {
+      return res
+        .status(404)
+        .json({ error: "No matching bidding items found." });
+    }
+
+    res.json(rows);
   } catch (error) {
-    console.error("Error fetching items:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in fetching existing bid items:", error);
+    res.status(500).json({ error: "Fetching of current bid items failed." });
   }
 });
 
