@@ -33,27 +33,27 @@ PORT=8082
 
 Since this project is using `MySQL` as its relational database management system (RDBMS), you can install `MYSQL server` on a terminal or download from: (https://dev.mysql.com/downloads/mysql/).
 
-To download/install `MYSQL server` in terminal:
+**To download/install `MYSQL server` in terminal:**
 
-[Using Mac terminal]:
+## Using Mac terminal:
 
-First, you can do `Homebrew installation' by running the command below:
+First, you can do **`Homebrew installation'** by running the command below:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Then, install `MySQL` by running the command below:
+**Then, install `MySQL` by running the command below:**
 
 ```bash
 brew install mysql
 ```
-Once the installation is done, you can now start running MySQL server through the terminal command below:
+**Once the installation is done, you can now start running MySQL server through the terminal command below:**
 
 ```bash
 brew services start mysql
 ```
-Secure MySQL Installation (Optional but Recommended):
+**Secure MySQL Installation (Optional but Recommended):**
 
 By default, MySQL installation is not secured. To enhance security, you should run the following command and follow the prompts to set a root password and remove some unnecessary user accounts:
 
@@ -61,38 +61,38 @@ By default, MySQL installation is not secured. To enhance security, you should r
 mysql_secure_installation
 ```
 
-Finally, you can access 'MySQL'. Make sure to set up your desired username and password. It will prompt you to enter the root password you set during the secure installation step.
+**Finally, you can access 'MySQL'. Make sure to set up your desired username and password. It will prompt you to enter the root password you set during the secure installation step.**
 
 ```bash
 mysql -u root -p
 ```
 
-[Using Windows Terminal]
+## Using Windows Terminal
 
-Download MySQL Installer by accessing their official website:(https://dev.mysql.com/downloads/installer/) and download the MySQL Installer for Windows.
+**Download MySQL Installer** by accessing their official website:(https://dev.mysql.com/downloads/installer/) and download the MySQL Installer for Windows.
 
-Run the MySQL Installer
+**Run the MySQL Installer**
 Once the download is complete, run the MySQL Installer executable (.exe) file. It will open the MySQL Installer Wizard.
 
-Choose Setup Type:
+**Choose Setup Type:**
 In the MySQL Installer Wizard, you'll be presented with different setup types. Select "Developer Default" or "Server only" depending on your needs. The "Developer Default" option includes MySQL Server and various development components, while the "Server only" option installs just the MySQL Server.
 
-Select Products and Features:
+**Select Products and Features:**
 If you chose "Developer Default," the installer will provide a list of available products and features to install. You can customize the installation by selecting or deselecting specific components. For most cases, the default selections should be sufficient.
 
-MySQL Server Configuration:
+**MySQL Server Configuration:**
 Next, the installer will prompt you to configure the MySQL Server. You can choose a port number, set the root password, and configure other options as needed.
 
-Start the Installation:
+**Start the Installation:**
 Once you have chosen your configurations, click on the "Execute" button to start the installation process.
 
-Complete the Installation:
+**Complete the Installation:**
 The installer will now download and install the selected components. Once the installation is complete, click on the "Finish" button.
 
-Add MySQL to the System PATH (Optional):
+**Add MySQL to the System PATH (Optional):**
 By default, the MySQL executable files might not be added to the system PATH, which means you need to provide the full path to the MySQL commands each time you want to use them. If you want to avoid this, you can add MySQL to the system PATH. To do this, find the MySQL bin directory (e.g., C:\Program Files\MySQL\MySQL Server X.X\bin) and add it to the PATH environment variable.
 
-Verify the Installation:
+**Verify the Installation:**
 Open the Windows Command Prompt or PowerShell and run the following command to check if MySQL is properly installed:
 
 ```bash
@@ -100,9 +100,9 @@ mysql --version
 ```
 This command should display the MySQL version number, indicating that MySQL is successfully installed.
 
-To run in either command prompt or powershell, simply run the command `mysql`.
+**To run in either command prompt or powershell, simply run the command `mysql`.**
 
-Running the API endpoints via `Postman' application
+## Running the API endpoints via `Postman' application
 
 Download the `Postman` application by accessing their official website at [https://www.postman.com/downloads/](https://www.postman.com/downloads/).
 
@@ -115,6 +115,7 @@ git clone https://github.com/Mikaeylaaa/full-stack-coding-assignment-backend.git
 ```
 ## Project Structure
 
+```bash
 project-root/
 ├── src/
 │   ├── app.ts
@@ -124,6 +125,7 @@ project-root/
 ├── package.json
 ├── tsconfig.json
 └── .env
+```
 
 Below is the directory/folder structure for this project:
 
@@ -161,7 +163,7 @@ Once the server is up and running, open the Postman app and enter the API routes
 
 To help in checking the detailed information of all API endpoints including their methods, request payloads and responses, please check access this URL: [http://localhost:8082/api-docs/](http://localhost:8082/api-docs/) - an API documentation generator named as `Swagger` that helps developers and stakeholders understand the Online Auction System back end flow or process.
 
-API endpoints and their methods:
+*API endpoints and their methods:*
 
  - **`User Registration`**: POST http://localhost:8082/register
 
@@ -192,7 +194,3 @@ API endpoints and their methods:
  - **`Deposit Money`**: POST http://localhost:8082/deposits
 
  - **`Fetch All Deposits`**: GET http://localhost:8082/deposit
-
-
-
-
