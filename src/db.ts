@@ -5,6 +5,7 @@ import mysql, {
   RowDataPacket,
 } from "mysql2/promise";
 import dotenv from "dotenv";
+import { Users } from "./types";
 dotenv.config();
 
 // Create a connection pool to the MySQL database
@@ -116,16 +117,59 @@ export async function getUsers(
   }
 }
 
+export async function findUserByEmail(
+  email: string
+): Promise<RowDataPacket | null> {
+  const connection = await pool.getConnection();
+
+  try {
+    const [rows] = await connection.query<RowDataPacket[]>(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+
+    // If no user found with the provided email, return null
+    if (!rows || rows.length === 0) {
+      return null;
+    }
+
+    // Assuming the 'users' table has 'id', 'email', and 'password' columns
+    const user = rows[0];
+    return user;
+  } catch (error) {
+    console.error("Error finding user by email:", error);
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+export async function findUserById(id: number): Promise<RowDataPacket | null> {
+  const connection = await pool.getConnection();
+  const [users] = await connection.query<RowDataPacket[]>(
+    "SELECT * FROM users WHERE id = ?",
+    [id]
+  );
+  if (users.length === 0) return null;
+  return users[0];
+}
+
 // POST - Create users
 export async function createUser(email: string, password: string) {
   const connection = await pool.getConnection();
   // Perform the insert operation
-  const [result] = await connection.query<ResultSetHeader>(
-    "INSERT INTO users (email, password) VALUES (?, ?)",
-    [email, password]
-  );
-  connection.release();
-  return result.insertId;
+  try {
+    const [result] = await connection.query<ResultSetHeader>(
+      "INSERT INTO users (email, password) VALUES (?, ?)",
+      [email, password]
+    );
+    connection.release();
+    return result.insertId;
+  } catch (error) {
+    console.error("Error executing database query:", error);
+    connection.release();
+    throw error; // Rethrow the error to be caught in the route handler
+  }
 }
 
 // POST - Create item
@@ -244,7 +288,9 @@ export async function getExistingItems(
 // SELECT - Fetch 'published' items from the database
 export async function getPublishedtems() {
   const connection = await pool.getConnection();
-  const [rows] = await connection.query("SELECT * FROM items WHERE state = 'published'");
+  const [rows] = await connection.query(
+    "SELECT * FROM items WHERE state = 'published'"
+  );
   connection.release();
   return rows;
 }
@@ -335,6 +381,27 @@ export async function getAllBids() {
   const [rows] = await connection.query("SELECT * FROM bids");
   connection.release();
   return rows;
+}
+
+// GET - Fetch users data from database
+export async function getUsersData(userId: number) {
+  try {
+    const connection = await pool.getConnection();
+    // Check if the user exists
+    const [user] = await connection.query<ResultSetHeader[]>(
+      "SELECT id FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if (user.length === 0) {
+      return null;
+    } else {
+      return user[0];
+    }
+  } catch (error) {
+    console.error("Error fetching users data:", error);
+    throw error;
+  }
 }
 
 // POST - Create deposit

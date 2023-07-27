@@ -11,19 +11,22 @@ import {
   createItem,
   createUser,
   deleteItem,
+  findUserByEmail,
+  findUserById,
   getAllBids,
   getAllDeposits,
   getAllItems,
   getExistingItems,
   getPublishedtems,
   getUsers,
+  getUsersData,
   pool,
   updateBid,
   updateItemDetails,
   updateItemPriceById,
   updateItemStateToPublished,
 } from "./db";
-import { BiddingItem } from "./types";
+import { BiddingItem, Users } from "./types";
 
 const router = express.Router();
 
@@ -56,6 +59,7 @@ router.post("/register", async (req: Request, res: Response) => {
 // Get all users
 router.get("/login", async (req: Request, res: Response) => {
   const { email, password } = req.query;
+
   try {
     if (!email || !password) {
       return res
@@ -101,19 +105,22 @@ router.post("/items", async (req: Request, res: Response) => {
 });
 
 // Update item state to 'published'
-router.put("/bidding-items/:itemId/publish", async (req: Request, res: Response) => {
-  try {
-    const itemId = Number(req.params.itemId); // Extract the itemId from the URL parameter
+router.put(
+  "/bidding-items/:itemId/publish",
+  async (req: Request, res: Response) => {
+    try {
+      const itemId = Number(req.params.itemId); // Extract the itemId from the URL parameter
 
-    // Update the state of the item to 'published'
-    await updateItemStateToPublished(itemId);
+      // Update the state of the item to 'published'
+      await updateItemStateToPublished(itemId);
 
-    res.status(200).json({ message: "Item published successfully" });
-  } catch (error) {
-    console.error("Error publishing item:", error);
-    res.status(500).json({ error: "Internal server error" });
+      res.status(200).json({ message: "Item published successfully" });
+    } catch (error) {
+      console.error("Error publishing item:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 // Route to update an item's price by id
 router.put("/items/:itemId", async (req: Request, res: Response) => {
@@ -178,10 +185,22 @@ router.get("/published-items", async (req: Request, res: Response) => {
 
 // Route to get existing items available for bidding
 router.get("/existing-items", async (req: Request, res: Response) => {
-  const { itemName, itemPrice, timeWindowHours, timeWindowMinutes, state='draft' } = req.query;
+  const {
+    itemName,
+    itemPrice,
+    timeWindowHours,
+    timeWindowMinutes,
+    state = "draft",
+  } = req.query;
 
   // Check if all the required parameters are provided in the query string
-  if (!itemName || !itemPrice || !timeWindowHours || !timeWindowMinutes || state) {
+  if (
+    !itemName ||
+    !itemPrice ||
+    !timeWindowHours ||
+    !timeWindowMinutes ||
+    state
+  ) {
     return res
       .status(400)
       .json({ error: "Please provide all the required parameters." });
@@ -262,10 +281,41 @@ router.get("/bid", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/user", async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email parameter is required" });
+    }
+
+    const connection = await pool.getConnection();
+    const [user] = await connection.query(
+      "SELECT id, email FROM users WHERE email = ?",
+      [email]
+    );
+    connection.release();
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 // Route to deposit of money
-router.post("/deposit", async (req: Request, res: Response) => {
+router.post("/deposits", async (req: Request, res: Response) => {
   try {
     const { userId, amount } = req.body;
+    const user = await getUsersData(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
     const depositId = await createDeposit(userId, amount);
 
     res
