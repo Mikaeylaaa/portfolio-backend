@@ -1,5 +1,7 @@
 // src/app.ts
 import express, { Application, Request, Response } from "express";
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger'; // Import the swagger configuration
 import {
   checkDatabaseConnection,
   createBidsTable,
@@ -15,6 +17,9 @@ const PORT: number = 8082;
 
 app.use(express.json());
 app.use(cors()); // Enable CORS for all origins
+
+// Serve Swagger UI at /api-docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to the Bidding System API");
