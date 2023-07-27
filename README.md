@@ -18,11 +18,18 @@ To integrate this project with back-end framework, it is built with the followin
 
 Below is the sample content for `.env` file:
 
+```bash
 DB_HOST=localhost
+
 DB_USER=<your-username>
+
 DB_PASSWORD=<your-password>
+
 DB_NAME=bidding_system_db
+
 PORT=8082
+
+```
 
 Since this project is using `MySQL` as its relational database management system (RDBMS), you can install `MYSQL server` on a terminal or download from: (https://dev.mysql.com/downloads/mysql/).
 
